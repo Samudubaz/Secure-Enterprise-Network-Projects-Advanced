@@ -1,0 +1,101 @@
+Basic settings
+--------------------------------------------------------------
+Switch(config)#hostname ICT-SW
+
+ICT-SW(config)#line console 0
+ICT-SW(config-line)#password cisco
+ICT-SW(config-line)#login
+ICT-SW(config-line)#exec-timeout 3 0
+ICT-SW(config-line)#logging synchronous
+ICT-SW(config-line)#exit
+
+ICT-SW(config)#enable password cisco
+
+ICT-SW(config)#banner motd &NO UNAUTHORIZED ACCESS!!!&
+
+ICT-SW(config)#no ip domain-lookup
+
+ICT-SW(config)#service password-encryption
+
+SSH
+--------------------------------------------------------------
+ICT-SW(config)#username cisco password cisco
+ICT-SW(config)#ip domain-name cisco.com
+ICT-SW(config)#crypto key generate rsa general-keys modulus 1024
+
+ICT-SW(config)#ip ssh version 2
+
+ICT-SW(config)#line vty 0 15
+ICT-SW(config-line)#login local
+ICT-SW(config-line)#transport input ssh
+ICT-SW(config-line)#exit
+
+Standard ACL for SSH
+--------------------------------------------------------------
+ICT-SW(config)#access-list 1 permit 192.168.10.0 0.0.0.255
+ICT-SW(config)#access-list 1 deny any
+
+SSH
+--------------------------------------------------------------
+ICT-SW(config)#line vty 0 15
+ICT-SW(config-line)#access-class 1 in
+ICT-SW(config-line)#exit
+
+Trunk the Interfaces
+--------------------------------------------------------------
+ICT-SW(config)#int range fa0/1-2
+ICT-SW(config-if-range)#switchport mode trunk
+ICT-SW(config-if-range)#ex
+
+
+VLAN Creation
+--------------------------------------------------------------
+ICT-SW(config)#vlan 10
+ICT-SW(config-vlan)#name MGT
+ICT-SW(config-vlan)#ex
+
+ICT-SW(config)#vlan 20
+ICT-SW(config-vlan)#name LAN
+ICT-SW(config-vlan)#ex
+
+ICT-SW(config)#vlan 50
+ICT-SW(config-vlan)#name WLAN
+ICT-SW(config-vlan)#ex
+
+ICT-SW(config)#vlan 70
+ICT-SW(config-vlan)#name VoIP
+ICT-SW(config-vlan)#ex
+
+ICT-SW(config)#vlan 199
+ICT-SW(config-vlan)#name BLACKHOLE
+ICT-SW(config-vlan)#ex
+
+Assign Ports to VLAN
+--------------------------------------------------------------
+ICT-SW(config)#int range fa0/3-4
+ICT-SW(config-if-range)#switchport mode access 
+ICT-SW(config-if-range)#switchport access vlan 20
+ICT-SW(config-if-range)#ex
+
+ICT-SW(config)#int range fa0/5-6
+ICT-SW(config-if-range)#switchport mode access 
+ICT-SW(config-if-range)#switchport voice vlan 70
+ICT-SW(config-if-range)#ex
+
+ICT-SW(config)#int fa0/7
+ICT-SW(config-if)#switchport mode access 
+ICT-SW(config-if)#switchport access vlan 50
+ICT-SW(config-if)#ex
+
+ICT-SW(config)#int range fa0/8-24, gig0/1-2
+ICT-SW(config-if-range)#switchport mode access 
+ICT-SW(config-if-range)#switchport access vlan 199
+ICT-SW(config-if-range)#shut
+ICT-SW(config-if-range)#ex
+
+STP Portfast and BPDUguard
+--------------------------------------------------------------
+ICT-SW(config)#int range fa0/3-24
+ICT-SW(config-if-range)#spanning-tree portfast
+ICT-SW(config-if-range)#spanning-tree bpduguard enable
+ICT-SW(config-if-range)#ex

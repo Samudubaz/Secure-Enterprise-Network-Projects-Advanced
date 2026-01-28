@@ -1,0 +1,100 @@
+Basic settings
+--------------------------------------------------------------
+Switch(config)#hostname HL-SW
+
+HL-SW(config)#line console 0
+HL-SW(config-line)#password cisco
+HL-SW(config-line)#login
+HL-SW(config-line)#exec-timeout 3 0
+HL-SW(config-line)#logging synchronous
+HL-SW(config-line)#exit
+
+HL-SW(config)#enable password cisco
+
+HL-SW(config)#banner motd &NO UNAUTHORIZED ACCESS!!!&
+
+HL-SW(config)#no ip domain-lookup
+
+HL-SW(config)#service password-encryption
+
+SSH
+--------------------------------------------------------------
+HL-SW(config)#username cisco password cisco
+HL-SW(config)#ip domain-name cisco.com
+HL-SW(config)#crypto key generate rsa general-keys modulus 1024
+
+HL-SW(config)#ip ssh version 2
+
+HL-SW(config)#line vty 0 15
+HL-SW(config-line)#login local
+HL-SW(config-line)#transport input ssh
+HL-SW(config-line)#exit
+
+Standard ACL for SSH
+--------------------------------------------------------------
+HL-SW(config)#access-list 1 permit 192.168.10.0 0.0.0.255
+HL-SW(config)#access-list 1 deny any
+
+SSH
+--------------------------------------------------------------
+HL-SW(config)#line vty 0 15
+HL-SW(config-line)#access-class 1 in
+HL-SW(config-line)#exit
+
+Trunk the Interfaces
+--------------------------------------------------------------
+HL-SW(config)#int range fa0/1-2
+HL-SW(config-if-range)#switchport mode trunk
+HL-SW(config-if-range)#ex
+
+VLAN Creation
+--------------------------------------------------------------
+HL-SW(config)#vlan 10
+HL-SW(config-vlan)#name MGT
+HL-SW(config-vlan)#ex
+
+HL-SW(config)#vlan 20
+HL-SW(config-vlan)#name LAN
+HL-SW(config-vlan)#ex
+
+HL-SW(config)#vlan 50
+HL-SW(config-vlan)#name WLAN
+HL-SW(config-vlan)#ex
+
+HL-SW(config)#vlan 70
+HL-SW(config-vlan)#name VoIP
+HL-SW(config-vlan)#ex
+
+HL-SW(config)#vlan 199
+HL-SW(config-vlan)#name BLACKHOLE
+HL-SW(config-vlan)#ex
+
+Assign Ports to VLAN
+--------------------------------------------------------------
+HL-SW(config)#int range fa0/3-4
+HL-SW(config-if-range)#switchport mode access 
+HL-SW(config-if-range)#switchport access vlan 20
+HL-SW(config-if-range)#ex
+
+HL-SW(config)#int range fa0/5-6
+HL-SW(config-if-range)#switchport mode access 
+HL-SW(config-if-range)#switchport voice vlan 70
+HL-SW(config-if-range)#ex
+
+HL-SW(config)#int fa0/7
+HL-SW(config-if)#switchport mode access 
+HL-SW(config-if)#switchport access vlan 50
+HL-SW(config-if)#ex
+
+HL-SW(config)#int range fa0/8-24, gig0/1-2
+HL-SW(config-if-range)#switchport mode access 
+HL-SW(config-if-range)#switchport access vlan 199
+HL-SW(config-if-range)#shut
+HL-SW(config-if-range)#ex
+
+STP Portfast and BPDUguard
+--------------------------------------------------------------
+HL-SW(config)#int range fa0/3-24
+HL-SW(config-if-range)#spanning-tree portfast
+HL-SW(config-if-range)#spanning-tree bpduguard enable
+HL-SW(config-if-range)#ex

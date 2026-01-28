@@ -1,0 +1,100 @@
+Basic settings
+--------------------------------------------------------------
+Switch(config)#hostname AR-SW
+
+AR-SW(config)#line console 0
+AR-SW(config-line)#password cisco
+AR-SW(config-line)#login
+AR-SW(config-line)#exec-timeout 3 0
+AR-SW(config-line)#logging synchronous
+AR-SW(config-line)#exit
+
+AR-SW(config)#enable password cisco
+
+AR-SW(config)#banner motd &NO UNAUTHORIZED ACCESS!!!&
+
+AR-SW(config)#no ip domain-lookup
+
+AR-SW(config)#service password-encryption
+
+SSH
+--------------------------------------------------------------
+AR-SW(config)#username cisco password cisco
+AR-SW(config)#ip domain-name cisco.com
+AR-SW(config)#crypto key generate rsa general-keys modulus 1024
+
+AR-SW(config)#ip ssh version 2
+
+AR-SW(config)#line vty 0 15
+AR-SW(config-line)#login local
+AR-SW(config-line)#transport input ssh
+AR-SW(config-line)#exit
+
+Standard ACL for SSH
+--------------------------------------------------------------
+AR-SW(config)#access-list 1 permit 192.168.10.0 0.0.0.255
+AR-SW(config)#access-list 1 deny any
+
+SSH
+--------------------------------------------------------------
+AR-SW(config)#line vty 0 15
+AR-SW(config-line)#access-class 1 in
+AR-SW(config-line)#exit
+
+Trunk the Interfaces
+--------------------------------------------------------------
+AR-SW(config)#int range fa0/1-2
+AR-SW(config-if-range)#switchport mode trunk
+AR-SW(config-if-range)#ex
+
+VLAN Creation
+--------------------------------------------------------------
+AR-SW(config)#vlan 10
+AR-SW(config-vlan)#name MGT
+AR-SW(config-vlan)#ex
+
+AR-SW(config)#vlan 20
+AR-SW(config-vlan)#name LAN
+AR-SW(config-vlan)#ex
+
+AR-SW(config)#vlan 50
+AR-SW(config-vlan)#name WLAN
+AR-SW(config-vlan)#ex
+
+AR-SW(config)#vlan 70
+AR-SW(config-vlan)#name VoIP
+AR-SW(config-vlan)#ex
+
+AR-SW(config)#vlan 199
+AR-SW(config-vlan)#name BLACKHOLE
+AR-SW(config-vlan)#ex
+
+Assign Ports to VLAN
+--------------------------------------------------------------
+AR-SW(config)#int range fa0/3-4
+AR-SW(config-if-range)#switchport mode access 
+AR-SW(config-if-range)#switchport access vlan 20
+AR-SW(config-if-range)#ex
+
+AR-SW(config)#int range fa0/5-6
+AR-SW(config-if-range)#switchport mode access 
+AR-SW(config-if-range)#switchport voice vlan 70
+AR-SW(config-if-range)#ex
+
+AR-SW(config)#int fa0/7
+AR-SW(config-if)#switchport mode access 
+AR-SW(config-if)#switchport access vlan 50
+AR-SW(config-if)#ex
+
+AR-SW(config)#int range fa0/8-24, gig0/1-2
+AR-SW(config-if-range)#switchport mode access 
+AR-SW(config-if-range)#switchport access vlan 199
+AR-SW(config-if-range)#shut
+AR-SW(config-if-range)#ex
+
+STP Portfast and BPDUguard
+--------------------------------------------------------------
+AR-SW(config)#int range fa0/3-24
+AR-SW(config-if-range)#spanning-tree portfast
+AR-SW(config-if-range)#spanning-tree bpduguard enable
+AR-SW(config-if-range)#ex

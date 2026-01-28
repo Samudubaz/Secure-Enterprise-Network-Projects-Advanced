@@ -1,0 +1,52 @@
+Basic settings
+--------------------------------------------------------------
+Switch(config)#hostname DMZ-SW
+
+DMZ-SW(config)#line console 0
+DMZ-SW(config-line)#password cisco
+DMZ-SW(config-line)#login
+DMZ-SW(config-line)#exec-timeout 3 0
+DMZ-SW(config-line)#logging synchronous
+DMZ-SW(config-line)#exit
+
+DMZ-SW(config)#enable password cisco
+
+DMZ-SW(config)#banner motd &NO UNAUTHORIZED ACCESS!!!&
+
+DMZ-SW(config)#no ip domain-lookup
+
+DMZ-SW(config)#service password-encryption
+
+SSH
+--------------------------------------------------------------
+DMZ-SW(config)#username cisco password cisco
+DMZ-SW(config)#ip domain-name cisco.com
+DMZ-SW(config)#crypto key generate rsa general-keys modulus 1024
+
+DMZ-SW(config)#ip ssh version 2
+
+DMZ-SW(config)#line vty 0 15
+DMZ-SW(config-line)#login local
+DMZ-SW(config-line)#transport input ssh
+DMZ-SW(config-line)#exit
+
+Standard ACL for SSH
+--------------------------------------------------------------
+DMZ-SW(config)#access-list 1 permit 192.168.10.0 0.0.0.255
+DMZ-SW(config)#access-list 1 deny any
+
+SSH
+--------------------------------------------------------------
+DMZ-SW(config)#line vty 0 15
+DMZ-SW(config-line)#access-class 1 in
+DMZ-SW(config-line)#exit
+
+STP Portfast and BPDUguard
+--------------------------------------------------------------
+DMZ-SW(config)#int range fa0/1-24
+DMZ-SW(config-if-range)#spanning-tree portfast 
+DMZ-SW(config-if-range)#spanning-tree bpduguard enable
+DMZ-SW(config-if-range)#ex
+
+
+

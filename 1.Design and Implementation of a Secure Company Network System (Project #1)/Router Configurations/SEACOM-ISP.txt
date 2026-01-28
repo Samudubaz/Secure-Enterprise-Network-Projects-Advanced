@@ -1,0 +1,27 @@
+Up The Interfaces
+--------------------------------------------------------------
+Router(config)#hostname SEACOM-ISP
+
+SEACOM-ISP(config)#interface GigabitEthernet0/0
+SEACOM-ISP(config-if)#ip address 105.100.50.1 255.255.255.252
+SEACOM-ISP(config-if)#no shutdown
+SEACOM-ISP(config-if)#exit
+
+SEACOM-ISP(config)#interface GigabitEthernet0/1
+SEACOM-ISP(config-if)#ip address 105.100.50.5 255.255.255.252
+SEACOM-ISP(config-if)#no shutdown
+SEACOM-ISP(config-if)#exit
+
+SEACOM-ISP(config)#interface GigabitEthernet0/2
+SEACOM-ISP(config-if)#no shutdown
+SEACOM-ISP(config-if)#ip address 20.20.20.1 255.255.255.252
+SEACOM-ISP(config-if)#exit
+
+OSPF Routing
+--------------------------------------------------------------
+SEACOM-ISP(config)#router ospf 35
+SEACOM-ISP(config-router)#router-id 1.1.3.3
+SEACOM-ISP(config-router)#network 105.100.50.0 0.0.0.3 area 0
+SEACOM-ISP(config-router)#network 105.100.50.4 0.0.0.3 area 0
+SEACOM-ISP(config-router)#network 20.20.20.0 0.0.0.3 area 0
+SEACOM-ISP(config-router)#ex

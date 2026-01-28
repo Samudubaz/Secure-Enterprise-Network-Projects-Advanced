@@ -1,0 +1,27 @@
+Up The Interfaces
+--------------------------------------------------------------
+Router(config)#hostname CLOUD
+
+CLOUD(config)#interface GigabitEthernet0/0
+CLOUD(config-if)#no shutdown
+CLOUD(config-if)#ip address 20.20.20.2 255.255.255.252
+CLOUD(config-if)#exit
+
+CLOUD(config)#interface GigabitEthernet0/1
+CLOUD(config-if)#ip address 30.30.30.2 255.255.255.252
+CLOUD(config-if)#no shutdown
+CLOUD(config-if)#exit
+
+CLOUD(config)#interface GigabitEthernet0/2
+CLOUD(config-if)#ip address 8.0.0.1 255.0.0.0
+CLOUD(config-if)#no shutdown
+CLOUD(config-if)#exit
+
+OSPF Routing
+--------------------------------------------------------------
+CLOUD(config)#router ospf 35
+CLOUD(config-router)#router-id 1.1.5.5
+CLOUD(config-router)#network 20.20.20.0 0.0.0.3 area 0
+CLOUD(config-router)#network 30.30.30.0 0.0.0.3 area 0
+CLOUD(config-router)#network 8.0.0.0 0.255.255.255 area 0
+CLOUD(config-router)#ex

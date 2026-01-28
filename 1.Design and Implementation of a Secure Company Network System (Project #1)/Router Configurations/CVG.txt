@@ -1,0 +1,69 @@
+Up The Interfaces
+--------------------------------------------------------------
+Router(config)#hostname CVG
+
+CVG(config)#interface FastEthernet0/0
+CVG(config-if)#no shut
+CVG(config-if)#ex
+
+VOIP CONFIGURATIONS
+--------------------------------------------------------------
+CVG(config)#int fa0/0.70
+CVG(config-subif)#encapsulation dot1Q 70
+CVG(config-subif)#ip add 172.30.0.1 255.255.0.0
+CVG(config-subif)#ex
+
+CVG(config)#service dhcp 
+
+CVG(config)#ip dhcp pool VoIP-POOL
+CVG(dhcp-config)#network 172.30.0.0 255.255.0.0
+CVG(dhcp-config)#default-router 172.30.0.1
+CVG(dhcp-config)#option 150 ip 172.30.0.1
+
+CVG(config)#telephony-service 
+CVG(config-telephony)#max-ephones 30
+CVG(config-telephony)#max-dn 30
+CVG(config-telephony)#ip source-address 172.30.0.1 port 2000
+CVG(config-telephony)#auto assign 1 to 30
+CVG(config-telephony)#ex
+
+CVG(config)#ephone-dn 1
+CVG(config-ephone-dn)#number 401
+CVG(config-ephone-dn)#ex
+
+CVG(config)#ephone-dn 2
+CVG(config-ephone-dn)#number 402
+CVG(config-ephone-dn)#ex
+
+CVG(config)#ephone-dn 3
+CVG(config-ephone-dn)#number 403
+CVG(config-ephone-dn)#ex
+
+CVG(config)#ephone-dn 4
+CVG(config-ephone-dn)#number 404
+CVG(config-ephone-dn)#ex
+
+CVG(config)#ephone-dn 5
+CVG(config-ephone-dn)#number 405
+CVG(config-ephone-dn)#ex
+
+CVG(config)#ephone-dn 6
+CVG(config-ephone-dn)#number 406
+CVG(config-ephone-dn)#ex
+CVG(config)#
+
+CVG(config)#ephone-dn 7
+CVG(config-ephone-dn)#number 407
+CVG(config-ephone-dn)#ex
+
+CVG(config)#ephone-dn 8
+CVG(config-ephone-dn)#number 408
+CVG(config-ephone-dn)#ex
+
+CVG(config)#ephone-dn 9
+CVG(config-ephone-dn)#number 409
+CVG(config-ephone-dn)#ex
+
+CVG(config)#ephone-dn 10
+CVG(config-ephone-dn)#number 410
+CVG(config-ephone-dn)#ex

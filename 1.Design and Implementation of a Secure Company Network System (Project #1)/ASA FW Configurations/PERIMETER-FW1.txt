@@ -1,0 +1,133 @@
+Up The Interfaces With Security Zones
+--------------------------------------------------------------
+ciscoasa(config)#hostname PERIMETER-FW1
+
+PERIMETER-FW1(config)#interface GigabitEthernet1/3
+PERIMETER-FW1(config-if)#no shut
+PERIMETER-FW1(config-if)#ip add 10.2.2.2 255.255.255.252
+PERIMETER-FW1(config-if)#nameif INSIDE
+PERIMETER-FW1(config-if)#security-level 100
+PERIMETER-FW1(config-if)#ex
+
+PERIMETER-FW1(config)#interface GigabitEthernet1/4
+PERIMETER-FW1(config-if)#no shut
+PERIMETER-FW1(config-if)#ip add 10.2.2.10 255.255.255.252
+PERIMETER-FW1(config-if)#nameif INSIDE2
+PERIMETER-FW1(config-if)#security-level 100
+PERIMETER-FW1(config-if)#ex
+
+PERIMETER-FW1(config)#interface GigabitEthernet1/5
+PERIMETER-FW1(config-if)#no shut
+PERIMETER-FW1(config-if)#ip add 10.11.11.1 255.255.255.224
+PERIMETER-FW1(config-if)#nameif DMZ
+PERIMETER-FW1(config-if)#security-level 70
+PERIMETER-FW1(config-if)#ex
+
+PERIMETER-FW1(config)#interface GigabitEthernet1/1
+PERIMETER-FW1(config-if)#no shut
+PERIMETER-FW1(config-if)#ip add 105.100.50.2 255.255.255.252
+PERIMETER-FW1(config-if)#nameif OUTSIDE
+PERIMETER-FW1(config-if)#security-level 0
+PERIMETER-FW1(config-if)#ex
+
+
+PERIMETER-FW1(config)#interface GigabitEthernet1/2
+PERIMETER-FW1(config-if)#no shut
+PERIMETER-FW1(config-if)#ip add 197.200.100.2 255.255.255.252
+PERIMETER-FW1(config-if)#nameif OUTSIDE2
+PERIMETER-FW1(config-if)#security-level 0
+PERIMETER-FW1(config-if)#ex
+
+Static + OSPF Routing
+--------------------------------------------------------------
+PERIMETER-FW1(config)#route OUTSIDE 0.0.0.0 0.0.0.0 105.100.50.1
+PERIMETER-FW1(config)#route OUTSIDE2 0.0.0.0 0.0.0.0 197.200.100.1 70
+
+PERIMETER-FW1(config)#router ospf 35
+PERIMETER-FW1(config-router)#router-id 1.1.8.8
+PERIMETER-FW1(config-router)#network 105.100.50.0 255.255.255.252 area 0
+PERIMETER-FW1(config-router)#network 197.200.100.0 255.255.255.252 area 0
+PERIMETER-FW1(config-router)#network 10.11.11.0 255.255.255.224 area 0
+PERIMETER-FW1(config-router)#network 10.2.2.0 255.255.255.252 area 0
+PERIMETER-FW1(config-router)#network 10.2.2.8 255.255.255.252 area 0
+PERIMETER-FW1(config-router)#ex
+
+Firewall inspection policy configuration
+---------------------------------------------------------------------------------
+
+NAT
+--------------------------------------------------------------
+
+LAN-INSIDE To OUTSIDE
+--------------------------------------------------------------
+PERIMETER-FW1(config)#object network INSIDE-OUTSIDE
+PERIMETER-FW1(config-network-object)#subnet 172.16.0.0 255.255.0.0
+PERIMETER-FW1(config-network-object)#nat (INSIDE,OUTSIDE) dynamic interface 
+PERIMETER-FW1(config-network-object)#ex
+
+PERIMETER-FW1(config)#object network INSIDE-OUTSIDE2
+PERIMETER-FW1(config-network-object)#subnet 172.16.0.0 255.255.0.0
+PERIMETER-FW1(config-network-object)#nat (INSIDE,OUTSIDE) dynamic interface 
+PERIMETER-FW1(config-network-object)#ex
+
+PERIMETER-FW1(config)#object network INSIDE2-OUTSIDE
+PERIMETER-FW1(config-network-object)#subnet 172.16.0.0 255.255.0.0
+PERIMETER-FW1(config-network-object)#nat (INSIDE2,OUTSIDE) dynamic interface 
+PERIMETER-FW1(config-network-object)#ex
+
+PERIMETER-FW1(config)#object network INSIDE2-OUTSIDE2
+PERIMETER-FW1(config-network-object)#subnet 172.16.0.0 255.255.0.0
+PERIMETER-FW1(config-network-object)#nat (INSIDE2,OUTSIDE) dynamic interface 
+PERIMETER-FW1(config-network-object)#ex
+
+
+WLAN-INSIDE To OUTSIDE
+--------------------------------------------------------------
+PERIMETER-FW1(config)#object network INSIDEw-OUTSIDEw
+PERIMETER-FW1(config-network-object)#subnet 10.20.0.0 255.255.0.0
+PERIMETER-FW1(config-network-object)#nat (INSIDE,OUTSIDE) dynamic interface 
+PERIMETER-FW1(config)#ex
+
+PERIMETER-FW1(config)##object network INSIDEw-OUTSIDEw2
+PERIMETER-FW1(config-network-object)#subnet 10.20.0.0 255.255.0.0
+PERIMETER-FW1(config-network-object)#nat (INSIDE,OUTSIDE2) dynamic interface 
+PERIMETER-FW1(config)#ex
+
+PERIMETER-FW1(config)#object network INSIDEw2-OUTSIDEw
+PERIMETER-FW1(config-network-object)#subnet 10.20.0.0 255.255.0.0
+PERIMETER-FW1(config-network-object)#nat (INSIDE2,OUTSIDE) dynamic interface 
+PERIMETER-FW1(config)#ex
+
+PERIMETER-FW1(config)#object network INSIDEw2-OUTSIDEw2
+PERIMETER-FW1(config-network-object)#subnet 10.20.0.0 255.255.0.0
+PERIMETER-FW1(config-network-object)#nat (INSIDE2,OUTSIDE2) dynamic interface 
+PERIMETER-FW1(config)#ex
+
+
+DMZ-INSIDE To OUTSIDE
+--------------------------------------------------------------
+PERIMETER-FW1(config)#object network DMZ-OUTSIDE
+PERIMETER-FW1(config-network-object)#subnet 10.11.11.0 255.255.255.224
+PERIMETER-FW1(config-network-object)#nat (DMZ,OUTSIDE) dynamic interface 
+PERIMETER-FW1(config-network-object)#ex
+
+PERIMETER-FW1(config)#object network DMZ-OUTSIDE2
+PERIMETER-FW1(config-network-object)#subnet 10.11.11.0 255.255.255.224
+PERIMETER-FW1(config-network-object)#nat (DMZ,OUTSIDE2) dynamic interface 
+PERIMETER-FW1(config-network-object)#ex
+
+POLICIES
+--------------------------------------------------------------
+PERIMETER-FW1(config)#access-list RES extended permit ICMP any any
+
+PERIMETER-FW1(config)#access-list RES extended permit tcp any any eq 80
+PERIMETER-FW1(config)#access-list RES extended permit tcp any any eq 53
+PERIMETER-FW1(config)#access-list RES extended permit tcp any any eq 443
+PERIMETER-FW1(config)#access-list RES extended permit udp any any eq 53
+
+PERIMETER-FW1(config)#access-group RES in interface DMZ
+PERIMETER-FW1(config)#access-group RES in interface OUTSIDE
+PERIMETER-FW1(config)#access-group RES in interface OUTSIDE2
+PERIMETER-FW1(config)#ex
+
+

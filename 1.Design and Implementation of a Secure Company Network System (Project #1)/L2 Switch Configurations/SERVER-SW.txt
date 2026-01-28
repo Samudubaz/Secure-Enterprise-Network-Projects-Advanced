@@ -1,0 +1,89 @@
+Basic settings
+--------------------------------------------------------------
+Switch(config)#hostname SERVER-SW
+
+SERVER-SW(config)#line console 0
+SERVER-SW(config-line)#password cisco
+SERVER-SW(config-line)#login
+SERVER-SW(config-line)#exec-timeout 3 0
+SERVER-SW(config-line)#logging synchronous
+SERVER-SW(config-line)#exit
+
+SERVER-SW(config)#enable password cisco
+
+SERVER-SW(config)#banner motd &NO UNAUTHORIZED ACCESS!!!&
+
+SERVER-SW(config)#no ip domain-lookup
+
+SERVER-SW(config)#service password-encryption
+
+SSH
+--------------------------------------------------------------
+SERVER-SW(config)#username cisco password cisco
+SERVER-SW(config)#ip domain-name cisco.com
+SERVER-SW(config)#crypto key generate rsa general-keys modulus 1024
+
+SERVER-SW(config)#ip ssh version 2
+
+SERVER-SW(config)#line vty 0 15
+SERVER-SW(config-line)#login local
+SERVER-SW(config-line)#transport input ssh
+SERVER-SW(config-line)#exit
+
+Standard ACL for SSH
+--------------------------------------------------------------
+SERVER-SW(config)#access-list 1 permit 192.168.10.0 0.0.0.255
+SERVER-SW(config)#access-list 1 deny any
+
+SSH
+--------------------------------------------------------------
+SERVER-SW(config)#line vty 0 15
+SERVER-SW(config-line)#access-class 1 in
+SERVER-SW(config-line)#exit
+
+Trunk the Interfaces
+--------------------------------------------------------------
+SERVER-SW(config)#int range fa0/1-2, fa0/7
+SERVER-SW(config-if-range)#switchport mode trunk
+SERVER-SW(config-if-range)#ex
+
+VLAN Creation
+--------------------------------------------------------------
+SERVER-SW(config)#vlan 10
+SERVER-SW(config-vlan)#name MGT
+SERVER-SW(config-vlan)#ex
+
+SERVER-SW(config)#vlan 20
+SERVER-SW(config-vlan)#name LAN
+SERVER-SW(config-vlan)#ex
+
+SERVER-SW(config)#vlan 50
+SERVER-SW(config-vlan)#name WLAN
+SERVER-SW(config-vlan)#ex
+
+SERVER-SW(config)#vlan 70
+SERVER-SW(config-vlan)#name VoIP
+SERVER-SW(config-vlan)#ex
+
+SERVER-SW(config)#vlan 90
+SERVER-SW(config-vlan)#name INSIDE-SERVERS
+SERVER-SW(config-vlan)#ex
+
+Assign Ports to VLAN
+--------------------------------------------------------------
+SERVER-SW(config)#int range fa0/3-5
+SERVER-SW(config-if-range)#switchport mode access 
+SERVER-SW(config-if-range)#switchport access vlan 90
+SERVER-SW(config-if-range)#ex
+
+SERVER-SW(config)#int fa0/6
+SERVER-SW(config-if)#switchport mode access 
+SERVER-SW(config-if)#switchport access vlan 50
+SERVER-SW(config-if)#ex
+
+STP Portfast and BPDUguard
+--------------------------------------------------------------
+SERVER-SW(config)#int range fa0/3-24
+SERVER-SW(config-if-range)#spanning-tree portfast
+SERVER-SW(config-if-range)#spanning-tree bpduguard enable
+SERVER-SW(config-if-range)#ex

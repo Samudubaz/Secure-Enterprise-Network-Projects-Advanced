@@ -1,0 +1,108 @@
+Up The Interfaces With Security Zones
+--------------------------------------------------------------
+ciscoasa(config)#hostname PERIMETER-FW2
+
+PERIMETER-FW2(config)#interface GigabitEthernet1/3
+PERIMETER-FW2(config-if)#no shut
+PERIMETER-FW2(config-if)#ip add 10.2.2.6 255.255.255.252
+PERIMETER-FW2(config-if)#nameif INSIDE
+PERIMETER-FW2(config-if)#security-level 100
+PERIMETER-FW2(config-if)#ex
+
+PERIMETER-FW2(config)#interface GigabitEthernet1/4
+PERIMETER-FW2(config-if)#no shut
+PERIMETER-FW2(config-if)#ip add 10.2.2.14 255.255.255.252
+PERIMETER-FW2(config-if)#nameif INSIDE2
+PERIMETER-FW2(config-if)#security-level 100
+PERIMETER-FW2(config-if)#ex
+
+
+PERIMETER-FW2(config)#interface GigabitEthernet1/1
+PERIMETER-FW2(config-if)#no shut
+PERIMETER-FW2(config-if)#ip add 105.100.50.6 255.255.255.252
+PERIMETER-FW2(config-if)#nameif OUTSIDE2
+PERIMETER-FW2(config-if)#security-level 0
+PERIMETER-FW2(config-if)#ex
+
+
+PERIMETER-FW2(config)#interface GigabitEthernet1/2
+PERIMETER-FW2(config-if)#no shut
+PERIMETER-FW2(config-if)#ip add 197.200.100.6 255.255.255.252
+PERIMETER-FW2(config-if)#nameif OUTSIDE
+PERIMETER-FW2(config-if)#security-level 0
+PERIMETER-FW2(config-if)#ex
+
+Static + OSPF Routing
+--------------------------------------------------------------
+PERIMETER-FW2(config)#route OUTSIDE 0.0.0.0 0.0.0.0 197.200.100.5
+PERIMETER-FW2(config)#route OUTSIDE2 0.0.0.0 0.0.0.0 105.100.50.5
+
+PERIMETER-FW2(config)#router ospf 35
+PERIMETER-FW2(config-router)#router-id 1.1.9.9
+PERIMETER-FW2(config-router)#network 105.100.50.4 255.255.255.252 area 0
+PERIMETER-FW2(config-router)#network 197.200.100.4 255.255.255.252 area 0
+PERIMETER-FW2(config-router)#network 10.2.2.4 255.255.255.252 area 0
+PERIMETER-FW2(config-router)#network 10.2.2.12 255.255.255.252 area 0
+PERIMETER-FW2(config-router)#ex
+
+Firewall inspection policy configuration
+---------------------------------------------------------------------------------
+NAT
+--------------------------------------------------------------
+
+LAN-INSIDE To OUTSIDE
+--------------------------------------------------------------
+PERIMETER-FW2(config)#object network INSIDE-OUTSIDE2
+PERIMETER-FW2(config-network-object)#subnet 172.16.0.0 255.255.0.0
+PERIMETER-FW2(config-network-object)#nat (INSIDE,OUTSIDE2) dynamic interface 
+PERIMETER-FW2(config-network-object)#ex
+
+PERIMETER-FW2(config)#object network INSIDE-OUTSIDE
+PERIMETER-FW2(config-network-object)#subnet 172.16.0.0 255.255.0.0
+PERIMETER-FW2(config-network-object)#nat (INSIDE,OUTSIDE) dynamic interface 
+PERIMETER-FW2(config-network-object)#ex
+
+PERIMETER-FW2(config)#object network INSIDE2-OUTSIDE2
+PERIMETER-FW2(config-network-object)#subnet 172.16.0.0 255.255.0.0
+PERIMETER-FW2(config-network-object)#nat (INSIDE2,OUTSIDE2) dynamic interface 
+PERIMETER-FW2(config-network-object)#ex
+
+PERIMETER-FW2(config)#object network INSIDE2-OUTSIDE
+PERIMETER-FW2(config-network-object)#subnet 172.16.0.0 255.255.0.0
+PERIMETER-FW2(config-network-object)#nat (INSIDE2,OUTSIDE) dynamic interface 
+PERIMETER-FW2(config-network-object)#ex
+
+WLAN-INSIDE To OUTSIDE
+--------------------------------------------------------------
+PERIMETER-FW2(config)#object network INSIDEw-OUTSIDEw2
+PERIMETER-FW2(config-network-object)#subnet 10.20.0.0 255.255.0.0
+PERIMETER-FW2(config-network-object)#nat (INSIDE,OUTSIDE2) dynamic interface 
+PERIMETER-FW2(config-network-object)#ex
+
+PERIMETER-FW2(config)#object network INSIDEw-OUTSIDEw
+PERIMETER-FW2(config-network-object)#subnet 10.20.0.0 255.255.0.0
+PERIMETER-FW2(config-network-object)#nat (INSIDE,OUTSIDE) dynamic interface 
+PERIMETER-FW2(config-network-object)#ex
+
+PERIMETER-FW2(config)#object network INSIDEw2-OUTSIDEw2
+PERIMETER-FW2(config-network-object)#subnet 10.20.0.0 255.255.0.0
+PERIMETER-FW2(config-network-object)#nat (INSIDE2,OUTSIDE2) dynamic interface 
+PERIMETER-FW2(config-network-object)#ex
+
+PERIMETER-FW2(config)#object network INSIDEw2-OUTSIDEw
+PERIMETER-FW2(config-network-object)#subnet 10.20.0.0 255.255.0.0
+PERIMETER-FW2(config-network-object)#nat (INSIDE2,OUTSIDE) dynamic interface 
+PERIMETER-FW2(config-network-object)#ex
+
+POLICIES
+--------------------------------------------------------------
+PERIMETER-FW2(config)#access-list RES extended permit ICMP any any
+
+PERIMETER-FW2(config)#access-list RES extended permit tcp any any eq 80
+PERIMETER-FW2(config)#access-list RES extended permit tcp any any eq 53
+PERIMETER-FW2(config)#access-list RES extended permit tcp any any eq 443
+PERIMETER-FW2(config)#access-list RES extended permit udp any any eq 53
+
+PERIMETER-FW2(config)#access-group RES in interface OUTSIDE
+PERIMETER-FW2(config)#access-group RES in interface OUTSIDE2
+PERIMETER-FW2(config)#ex

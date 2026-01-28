@@ -1,0 +1,100 @@
+Basic settings
+--------------------------------------------------------------
+Switch(config)#hostname MK-SW
+
+MK-SW(config)#line console 0
+MK-SW(config-line)#password cisco
+MK-SW(config-line)#login
+MK-SW(config-line)#exec-timeout 3 0
+MK-SW(config-line)#logging synchronous
+MK-SW(config)#exit
+
+MK-SW(config)#enable password cisco
+
+MK-SW(config)#banner motd &NO UNAUTHORIZED ACCESS!!!&
+
+MK-SW(config)#no ip domain-lookup
+
+MK-SW(config)#service password-encryption
+
+SSH
+--------------------------------------------------------------
+MK-SW(config)#username cisco password cisco
+MK-SW(config)#ip domain-name cisco.com
+MK-SW(config)#crypto key generate rsa general-keys modulus 1024
+
+MK-SW(config)#ip ssh version 2
+
+MK-SW(config)#line vty 0 15
+MK-SW(config)#login local
+MK-SW(config)#transport input ssh
+MK-SW(config)#exit
+
+Standard ACL for SSH
+--------------------------------------------------------------
+MK-SW(config)#access-list 1 permit 192.168.10.0 0.0.0.255
+MK-SW(config)#access-list 1 deny any
+
+SSH
+--------------------------------------------------------------
+MK-SW(config)#line vty 0 15
+MK-SW(config)#access-class 1 in
+MK-SW(config)#exit
+
+Trunk the Interfaces
+--------------------------------------------------------------
+MK-SW(config)#int range fa0/1-2
+MK-SW(config-if-range)#switchport mode trunk
+MK-SW(config-if-range)#ex
+
+VLAN Creation
+--------------------------------------------------------------
+MK-SW(config)#vlan 10
+MK-SW(config-vlan)#name MGT
+MK-SW(config-vlan)#ex
+
+MK-SW(config)#vlan 20
+MK-SW(config-vlan)#name LAN
+MK-SW(config-vlan)#ex
+
+MK-SW(config)#vlan 50
+MK-SW(config-vlan)#name WLAN
+MK-SW(config-vlan)#ex
+
+MK-SW(config)#vlan 70
+MK-SW(config-vlan)#name VoIP
+MK-SW(config-vlan)#ex
+
+MK-SW(config)#vlan 199
+MK-SW(config-vlan)#name BLACKHOLE
+MK-SW(config-vlan)#ex
+
+Assign Ports to VLAN
+--------------------------------------------------------------
+MK-SW(config)#int range fa0/3-4
+MK-SW(config-if-range)#switchport mode access 
+MK-SW(config-if-range)#switchport access vlan 20
+MK-SW(config-if-range)#ex
+
+MK-SW(config)#int range fa0/5-6
+MK-SW(config-if-range)#switchport mode access 
+MK-SW(config-if-range)#switchport voice vlan 70
+MK-SW(config-if-range)#ex
+
+MK-SW(config)#int fa0/7
+MK-SW(config-if)#switchport mode access 
+MK-SW(config-if)#switchport access vlan 50
+MK-SW(config-if)#ex
+
+MK-SW(config)#int range fa0/8-24, gig0/1-2
+MK-SW(config-if-range)#switchport mode access 
+MK-SW(config-if-range)#switchport access vlan 199
+MK-SW(config-if-range)#shut
+MK-SW(config-if-range)#ex
+
+STP Portfast and BPDUguard
+--------------------------------------------------------------
+MK-SW(config)#int range fa0/3-24
+MK-SW(config-if-range)#spanning-tree portfast
+MK-SW(config-if-range)#spanning-tree bpduguard enable
+MK-SW(config-if-range)#ex

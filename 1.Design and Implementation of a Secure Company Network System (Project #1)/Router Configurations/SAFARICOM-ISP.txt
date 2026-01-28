@@ -1,0 +1,33 @@
+Up The Interfaces
+--------------------------------------------------------------
+Router(config)#hostname SAFARICOM-ISP
+
+SAFARICOM-ISP(config)#interface GigabitEthernet0/0
+SAFARICOM-ISP(config-if)#ip address 197.200.100.1 255.255.255.252
+SAFARICOM-ISP(config-if)#no shutdown
+SAFARICOM-ISP(config-if)#exit
+
+SAFARICOM-ISP(config)#interface GigabitEthernet0/1
+SAFARICOM-ISP(config-if)#ip address 197.200.100.5 255.255.255.252
+SAFARICOM-ISP(config-if)#no shutdown
+SAFARICOM-ISP(config-if)#exit
+
+SAFARICOM-ISP(config)#interface GigabitEthernet0/2
+SAFARICOM-ISP(config-if)#ip address 30.30.30.1 255.255.255.252
+SAFARICOM-ISP(config-if)#no shutdown
+SAFARICOM-ISP(config-if)#exit
+
+OSPF Routing
+--------------------------------------------------------------
+SAFARICOM-ISP(config)#router ospf 35
+SAFARICOM-ISP(config-router)#router-id 1.1.4.4
+SAFARICOM-ISP(config-router)#network 197.200.100.0 0.0.0.3 area 0
+SAFARICOM-ISP(config-router)#network 197.200.100.4 0.0.0.3 area 0
+SAFARICOM-ISP(config-router)#network 30.30.30.0 0.0.0.3 area 0
+SAFARICOM-ISP(config-router)#ex
+
+
+
+
+
+

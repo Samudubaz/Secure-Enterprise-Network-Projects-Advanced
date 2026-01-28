@@ -1,0 +1,138 @@
+Basic settings
+--------------------------------------------------------------
+Switch(config)#hostname CORE-SW2
+
+CORE-SW2(config)#line console 0
+CORE-SW2(config-line)#password cisco
+CORE-SW2(config-line)#login
+CORE-SW2(config-line)#exec-timeout 3 0
+CORE-SW2(config-line)#logging synchronous
+CORE-SW2(config-line)#exit
+
+CORE-SW2(config)#enable password cisco
+
+CORE-SW2(config)#banner motd &NO UNAUTHORIZED ACCESS!!!&
+
+CORE-SW2(config)#no ip domain-lookup
+
+CORE-SW2(config)#service password-encryption
+
+SSH
+--------------------------------------------------------------
+CORE-SW2(config)#username cisco password cisco
+CORE-SW2(config)#ip domain-name cisco.com
+CORE-SW2(config)#crypto key generate rsa general-keys modulus 1024
+
+CORE-SW2(config)#ip ssh version 2
+
+CORE-SW2(config)#line vty 0 15
+CORE-SW2(config-line)#login local
+CORE-SW2(config-line)#transport input ssh
+CORE-SW2(config-line)#exit
+
+Standard ACL for SSH
+--------------------------------------------------------------
+CORE-SW2(config)#access-list 1 permit 192.168.10.0 0.0.0.255
+CORE-SW2(config)#access-list 1 deny any
+
+SSH
+--------------------------------------------------------------
+CORE-SW2(config)#line vty 0 15
+CORE-SW2(config-line)#access-class 1 in
+CORE-SW2(config-line)#exit
+
+
+Trunk the Interfaces
+--------------------------------------------------------------
+CORE-SW2(config)#int range gig1/0/3-8
+CORE-SW2(config-if-range)#switchport mode trunk
+CORE-SW2(config-if-range)#ex
+
+VLAN Creation
+--------------------------------------------------------------
+CORE-SW2(config)#vlan 10
+CORE-SW2(config-vlan)#name MGT
+CORE-SW2(config-vlan)#ex
+
+CORE-SW2(config)#vlan 20
+CORE-SW2(config-vlan)#name LAN
+CORE-SW2(config-vlan)#ex
+
+CORE-SW2(config)#vlan 50
+CORE-SW2(config-vlan)#name WLAN
+CORE-SW2(config-vlan)#ex
+
+CORE-SW2(config)#vlan 70
+CORE-SW2(config-vlan)#name VoIP
+CORE-SW2(config-vlan)#ex
+
+CORE-SW2(config)#vlan 90
+CORE-SW2(config-vlan)#name INSIDE-SERVERS
+CORE-SW2(config-vlan)#ex
+
+EtherChannel
+--------------------------------------------------------------
+CORE-SW1(config)#int range gig1/0/9-11
+CORE-SW1(config-if-range)#channel-group 1 mode passive
+CORE-SW1(config-if-range)#ex
+
+CORE-SW1(config)#interface Port-channel 1
+CORE-SW1(config-if)#switchport mode trunk 
+CORE-SW1(config-if)#ex
+
+CORE-SW2(config)#ip routing
+
+Up the Interface
+--------------------------------------------------------------
+CORE-SW2(config)#int gig1/0/1
+CORE-SW2(config-if)#no switchport 
+CORE-SW2(config-if)#no shut
+CORE-SW2(config-if)#ip add 10.2.2.9 255.255.255.252
+CORE-SW2(config-if)#ex
+
+CORE-SW2(config)#int gig1/0/2
+CORE-SW2(config-if)#no switchport 
+CORE-SW2(config-if)#no shut
+CORE-SW2(config-if)#ip add 10.2.2.13 255.255.255.252
+CORE-SW2(config-if)#ex
+
+HSRP and Inter-VLAN Routing
+--------------------------------------------------------------
+CORE-SW2(config)#int vlan 10
+CORE-SW2(config-if)#no shut
+CORE-SW2(config-if)#ip add 192.168.10.2 255.255.255.0
+CORE-SW2(config-if)#standby 10 ip 192.168.10.1
+CORE-SW2(config-if)#ip helper-address 10.11.11.38
+CORE-SW2(config-if)#ex
+
+CORE-SW2(config)#int vlan 20
+CORE-SW2(config-if)#no shut
+CORE-SW2(config-if)#ip add 172.16.0.2 255.255.0.0
+CORE-SW2(config-if)#standby 20 ip 172.16.0.1
+CORE-SW2(config-if)#ip helper-address 10.11.11.38
+CORE-SW2(config-if)#ex
+
+CORE-SW2(config)#int vlan 50
+CORE-SW2(config-if)#no shut
+CORE-SW2(config-if)#ip add 10.20.0.3 255.255.0.0
+CORE-SW2(config-if)#standby 50 ip 10.20.0.1
+CORE-SW2(config-if)#ip helper-address 10.11.11.38
+CORE-SW2(config-if)#ex
+
+CORE-SW2(config)#int vlan 90
+CORE-SW2(config-if)#no shut
+CORE-SW2(config-if)#ip add 10.11.11.35 255.255.255.224
+CORE-SW2(config-if)#standby 90 ip 10.11.11.33
+CORE-SW2(config-if)#ex
+
+OSPF Routing
+--------------------------------------------------------------
+CORE-SW2(config)#router ospf 35
+CORE-SW2(config-router)#router-id 1.1.2.2
+CORE-SW2(config-router)#network 10.2.2.8 0.0.0.3 area 0
+CORE-SW2(config-router)#network 10.2.2.12 0.0.0.3 area 0
+CORE-SW2(config-router)#network 192.168.10.0 0.0.0.255 area 0
+CORE-SW2(config-router)#network 172.16.0.0 0.0.255.255 area 0
+CORE-SW2(config-router)#network 10.20.0.0 0.0.255.255 area 0
+CORE-SW2(config-router)#network 10.11.11.32 0.0.0.31 area 0
+CORE-SW2(config-router)#ex
